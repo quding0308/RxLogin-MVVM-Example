@@ -1,4 +1,3 @@
-# RxLogin
-Rx MVVM Example
+# RxLogin MVVM Example
 
 ![](1.png)
