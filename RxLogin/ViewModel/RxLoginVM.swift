@@ -102,7 +102,7 @@ extension RxLoginVM {
                 guard let `self` = self else { return }
                 self.setLoginButtonHiddeSubject.onNext(!succ)
             })
-            .map { $0 ? "Login Success" : "Login Failed" }
+            .map { $0 ? "Login Succeed" : "Login Failed" }
             .bind(to: showAlertSubject)
             .disposed(by: bag)
     }

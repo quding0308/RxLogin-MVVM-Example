@@ -47,7 +47,7 @@ extension RxLoginModel {
             })
             .subscribe(onNext: { [weak self] person  in
                 guard let `self` = self else { return }
-                self.person = person // 持久化
+                self.person = person // Persistence
                 self.loginResultSubject.onNext(true)
             })
             .disposed(by: bag)
@@ -82,9 +82,9 @@ extension RxLoginModel {
     func login(username: String?, password: String?) -> Observable<Person> {
         return Observable<Person>.create { observer in
             DispatchQueue.global().async {
-                sleep(1) // 模拟网络请求延迟
+                sleep(1) // Simulating delay
                 DispatchQueue.main.async {
-                    let person = Person(username: username, password: password) // 模拟成功回调
+                    let person = Person(username: username, password: password) // Simulating callback
                     observer.onNext(person)
                 }
             }
