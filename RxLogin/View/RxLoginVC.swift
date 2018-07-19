@@ -16,15 +16,8 @@ enum RxLoginVCError: Error { case fail }
 @objcMembers class RxLoginVC: UIViewController {
     
     // MARK: Input
-    var showAlertObserver: AnyObserver<String?> {
-        return showAlertSubject.asObserver()
-    }
-    var setLoginButtonHiddenObserver: AnyObserver<Bool> {
-        return setLoginButtonHiddenSubject.asObserver()
-    }
-    
-    private var setLoginButtonHiddenSubject = PublishSubject<Bool>()
-    private var showAlertSubject = PublishSubject<String?>()
+    var showAlertObserver: AnyObserver<String?>!
+    var setLoginButtonHiddenObserver: AnyObserver<Bool>!
     
     private var nameField: UITextField!
     private var passwordField: UITextField!
@@ -34,7 +27,6 @@ enum RxLoginVCError: Error { case fail }
     
     init(viewModel: RxLoginVM = RxLoginVM()) {
         self.viewModel = viewModel
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -103,6 +95,19 @@ extension RxLoginVC {
     
     private func bind() {
         
+        //////////////////////////////////////////////////
+        // View
+        //////////////////////////////////////////////////
+        
+        showAlertObserver = AnyObserver(eventHandler: { [weak self] (event) in
+            guard let `self` = self, let element = event.element else { return }
+            self.showAlert(element)
+        })
+        
+        setLoginButtonHiddenObserver = AnyObserver(eventHandler: { [weak self] (event) in
+            guard let `self` = self, let element = event.element else { return }
+            self.loginButton.isHidden = element
+        })
         
         //////////////////////////////////////////////////
         // ViewModel <- View
@@ -149,29 +154,14 @@ extension RxLoginVC {
         viewModel.setLoginButtonHiddenDriver
             .drive(setLoginButtonHiddenObserver)
             .disposed(by: bag)
-        
-        //////////////////////////////////////////////////
-        // View
-        //////////////////////////////////////////////////
-
-        showAlertSubject
-            .subscribe(onNext: { [weak self] text in
-                guard let `self` = self, let text = text else { return }
-                self.showAlert(text)
-            })
-            .disposed(by: bag)
-        
-        setLoginButtonHiddenSubject
-            .subscribe(onNext: { [weak self] isHidden in
-                guard let `self` = self else { return }
-                self.loginButton.isHidden = isHidden
-            })
-            .disposed(by: bag)
+       
+      
     }
 }
 
 extension RxLoginVC {
-    private func showAlert(_ text: String) {
+    private func showAlert(_ text: String?) {
+        guard let text = text else { return }
         present({
             let alert = UIAlertController(title: text, message: nil, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .cancel, handler: { _ in
