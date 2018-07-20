@@ -92,7 +92,10 @@ extension RxLoginVM {
                 return self.model.login(username: tuple.username, password: tuple.password) // 正常登录调用 Model <-> VM
             })
             .do(onNext: { [weak self] _ in
-                self?.setLoginButtonHiddeSubject.onNext(true)                               // 无论结果如何显示登录按钮 VM -> View
+                self?.setLoginButtonHiddeSubject.onNext(false)                              // 无论结果如何显示登录按钮 VM -> View
+            })
+            .filter({
+                $0 != nil                                                                   // 把异常情况过滤，因为已经提示过
             })
             .map { ($0 ?? false) ? "Login Succeed" : "Login Failed" }                       // 把登录结果的bool值转换为适当文本
             .bind(to: showAlertSubject)                                                     // 把文本绑定到UI的提示控件上展示 VM -> View
