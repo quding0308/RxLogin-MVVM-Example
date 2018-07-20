@@ -76,27 +76,26 @@ extension RxLoginVM {
         // Model <-> ViewModel <-> View
         //////////////////////////////////////////////////
         
-        loginButtonTapSubject.asObserver()
-            .throttle(1, scheduler: MainScheduler.instance) 
+        loginButtonTapSubject.asObserver() // 用户点击登录按钮 VM <- View
+            .throttle(1, scheduler: MainScheduler.instance) // 节流，一秒最多处理一次 VM <- View
             .flatMapLatest({ [weak self] tuple -> Observable<Bool?> in
                 guard let `self` = self else { return Observable.just(nil) }
                 guard let username = tuple.username, !username.isEmpty else {
-                    self.showAlertSubject.onNext("empty username")
+                    self.showAlertSubject.onNext("empty username") // 提示：用户没输入用户名 VM -> View
                     return Observable.just(nil)
                 }
                 guard let password = tuple.password, !password.isEmpty else {
-                    self.showAlertSubject.onNext("empty password")
+                    self.showAlertSubject.onNext("empty password") // 提示：用户没输入密码 VM -> View
                     return Observable.just(nil)
                 }
-                self.setLoginButtonHiddeSubject.onNext(true)
-                return self.model.login(username: tuple.username, password: tuple.password)
+                self.setLoginButtonHiddeSubject.onNext(true) // 正常登录前隐藏登录按钮 VM -> View
+                return self.model.login(username: tuple.username, password: tuple.password) // 正常登录调用 Model <-> VM
             })
-            .do(onNext: { [weak self] succ in
-                guard let `self` = self, let succ = succ else { return }
-                self.setLoginButtonHiddeSubject.onNext(!succ)
+            .do(onNext: { [weak self] _ in
+                self?.setLoginButtonHiddeSubject.onNext(true) // 无论结果如何显示登录按钮 VM -> View
             })
-            .map { ($0 ?? false) ? "Login Succeed" : "Login Failed" }
-            .bind(to: showAlertSubject)
+            .map { ($0 ?? false) ? "Login Succeed" : "Login Failed" } // 把登录结果的bool值转换为适当文本
+            .bind(to: showAlertSubject) // 把文本绑定到UI的提示控件上展示 VM -> View
             .disposed(by: bag)
      
     }
