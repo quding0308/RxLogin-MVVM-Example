@@ -58,6 +58,7 @@ extension RxLoginModel {
             let encoder = JSONEncoder()
             if let encoded = try? encoder.encode(newItems) {
                 UserDefaults.standard.set(encoded, forKey: RxLoginModel.kRxLoginModelPersonKey)
+                UserDefaults.standard.synchronize()
             }
         }
     }
