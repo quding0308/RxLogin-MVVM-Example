@@ -73,37 +73,31 @@ extension RxLoginVM {
             .just("Password")
         
         //////////////////////////////////////////////////
-        // Model <- ViewModel <- View
+        // Model <-> ViewModel <-> View
         //////////////////////////////////////////////////
         
         loginButtonTapSubject.asObserver()
             .throttle(1, scheduler: MainScheduler.instance) 
-            .subscribe(onNext: { [weak self] tuple in
-                guard let `self` = self else { return }
+            .flatMapLatest({ [weak self] tuple -> Observable<Bool?> in
+                guard let `self` = self else { return Observable.just(nil) }
                 guard let username = tuple.username, !username.isEmpty else {
                     self.showAlertSubject.onNext("empty username")
-                    return
+                    return Observable.just(nil)
                 }
                 guard let password = tuple.password, !password.isEmpty else {
                     self.showAlertSubject.onNext("empty password")
-                    return
+                    return Observable.just(nil)
                 }
                 self.setLoginButtonHiddeSubject.onNext(true)
-                self.model.loginObserver.onNext(tuple)
+                return self.model.login(username: tuple.username, password: tuple.password)
             })
-            .disposed(by: bag)
-        
-        //////////////////////////////////////////////////
-        // Model -> ViewModel -> View
-        //////////////////////////////////////////////////
-        
-        model.loginResultObservable
             .do(onNext: { [weak self] succ in
-                guard let `self` = self else { return }
+                guard let `self` = self, let succ = succ else { return }
                 self.setLoginButtonHiddeSubject.onNext(!succ)
             })
-            .map { $0 ? "Login Succeed" : "Login Failed" }
+            .map { ($0 ?? false) ? "Login Succeed" : "Login Failed" }
             .bind(to: showAlertSubject)
             .disposed(by: bag)
+     
     }
 }

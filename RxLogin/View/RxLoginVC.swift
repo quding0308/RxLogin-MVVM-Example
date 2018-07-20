@@ -155,11 +155,11 @@ extension RxLoginVC {
             .drive(setLoginButtonHiddenObserver)
             .disposed(by: bag)
        
-      
     }
 }
 
 extension RxLoginVC {
+    
     private func showAlert(_ text: String?) {
         guard let text = text else { return }
         present({

@@ -13,14 +13,6 @@ enum RxLoginModelError: Error { case fail }
 
 class RxLoginModel {
     
-    // MARK: Input
-    var loginObserver: AnyObserver<(username: String?, password: String?)> {
-        return loginSubject.asObserver()
-    }
-    
-    // MARK: Output
-    var loginResultObservable: Observable<Bool>!
-    
     private var loginSubject = PublishSubject<(username: String?, password: String?)>()
     private let bag = DisposeBag()
     
@@ -28,8 +20,17 @@ class RxLoginModel {
         setup()
         bind()
     }
+    
+    func login(username: String?, password: String?) -> Observable<Bool?> {
+        return self.loginRequest(username: username, password: password)
+            .flatMapLatest({ person -> Observable<Bool?> in
+                self.person = person // Persistence
+                return Observable.just(true)
+            })
+    }
 }
 
+// MARK: Setup & Bind
 extension RxLoginModel {
     
     private func setup() {
@@ -37,16 +38,7 @@ extension RxLoginModel {
     }
     
     private func bind() {
-        loginResultObservable = loginSubject
-            .flatMapLatest ({ [weak self] tuple -> Observable<Person>  in
-                guard let `self` = self else { return Observable.error(RxLoginModelError.fail) }
-                return self.login(username: tuple.username, password: tuple.password)
-            })
-            .flatMapLatest({ [weak self] person -> Observable<Bool> in
-                guard let `self` = self else { return Observable.just(false) }
-                self.person = person // Persistence
-                return Observable.just(true)
-            })
+        
     }
 }
 
@@ -75,7 +67,7 @@ extension RxLoginModel {
 // MARK: Networking
 extension RxLoginModel {
     
-    func login(username: String?, password: String?) -> Observable<Person> {
+    private func loginRequest(username: String?, password: String?) -> Observable<Person> {
         return Observable<Person>.create { observer in
             DispatchQueue.global().async {
                 sleep(1) // Simulating delay
