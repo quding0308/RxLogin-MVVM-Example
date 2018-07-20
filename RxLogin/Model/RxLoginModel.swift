@@ -19,11 +19,8 @@ class RxLoginModel {
     }
     
     // MARK: Output
-    var loginResultObservable: Observable<Bool> {
-        return loginResultSubject.asObservable()
-    }
+    var loginResultObservable: Observable<Bool>!
     
-    private var loginResultSubject = PublishSubject<Bool>()
     private var loginSubject = PublishSubject<(username: String?, password: String?)>()
     private let bag = DisposeBag()
     
@@ -40,17 +37,16 @@ extension RxLoginModel {
     }
     
     private func bind() {
-        loginSubject
+        loginResultObservable = loginSubject
             .flatMapLatest ({ [weak self] tuple -> Observable<Person>  in
                 guard let `self` = self else { return Observable.error(RxLoginModelError.fail) }
                 return self.login(username: tuple.username, password: tuple.password)
             })
-            .subscribe(onNext: { [weak self] person  in
-                guard let `self` = self else { return }
+            .flatMapLatest({ [weak self] person -> Observable<Bool> in
+                guard let `self` = self else { return Observable.just(false) }
                 self.person = person // Persistence
-                self.loginResultSubject.onNext(true)
+                return Observable.just(true)
             })
-            .disposed(by: bag)
     }
 }
 
