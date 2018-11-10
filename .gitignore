@@ -1,0 +1,36 @@
+# Xcode
+.DS_Store
+*/build/*
+build/*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.moved-aside
+DerivedData
+.idea/
+*.hmap
+*.xccheckout
+*.xcworkspace
+!default.xcworkspace
+
+#CocoaPods
+Pods/
+!Podfile
+#Podfile.lock
+
+#Carthage	// by quding
+Carthage/
+Cartfile
+Cartfile.resolved
+
+#ThirdPartyLibraries
+ThirdPartyLibraries
+kdweibo.xcodeproj/xcshareddata/*
+/kdweibo.xcodeproj/xcshareddata/xcbaselines/02FD705020F74F4A0082541C.xcbaseline/899815BC-5DC6-4CE1-9610-FADA876BD623.plist
+/kdweibo.xcodeproj/xcshareddata/xcbaselines/02FD705020F74F4A0082541C.xcbaseline/Info.plist
