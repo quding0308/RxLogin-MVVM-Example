@@ -22,6 +22,7 @@ enum RxLoginVCError: Error { case fail }
     private var nameField: UITextField!
     private var passwordField: UITextField!
     private var loginButton: UIButton!
+    
     private let viewModel: RxLoginVM
     private let bag = DisposeBag()
     
@@ -169,6 +170,33 @@ extension RxLoginVC {
             }))
             return alert
         }(),animated: true, completion: nil)
+    }
+    
+    func test() {
+        let observable = Observable.from(["1"])
+        let driver = observable.asDriver(onErrorJustReturn: "0")
+        
+        let observer = AnyObserver<String> { [weak self] (event) in
+            print(event.element)
+        }
+        
+        let binder = Binder<String>(self) { (vc, name) in
+            print("")
+        }
+        
+        let textField = UITextField()
+        let btn = UIButton()
+        
+        
+        
+//        btn.rx.tap.subscribe(onNext: {
+//            print("tapped")
+//        }).disposed(by: disposebag)
+//
+        
+//        let observable1 = Observable.from(Void)
+//        observable1.bind(to: btn.rx.tap)
+        
     }
 
 }
